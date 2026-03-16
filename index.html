@@ -96,15 +96,16 @@
         <label style="color: white; font-size: 14px; cursor: pointer;">
             <input type="checkbox" id="isFriend"> друн
         </label>
+        <button id="downbtn">Download a chat</button>
         <button id="sendBtn">Send</button>
     </div>
 
     <script>
-        let messages = JSON.parse(localStorage.getItem('ChatHistory')) || [];
-        let chat = document.querySelector('#chat-window');
-        let fButton = document.querySelector('#sendBtn');
-        let inp = document.querySelector('input');
-        function renderMessage(msgData) {
+            let messages = JSON.parse(localStorage.getItem('ChatHistory')) || [];
+            let chat = document.querySelector('#chat-window');
+            let fButton = document.querySelector('#sendBtn');
+            let inp = document.querySelector('input');
+            function renderMessage(msgData) {
             let newMessage = document.createElement('div');
             newMessage.classList.add(msgData.isFriend ? 'friend' : 'box');
 
@@ -136,36 +137,51 @@
             timeLabel.innerText=msgData.time || "";
 
             newMessage.appendChild(timeLabel);
-        }
+            }
 
-        messages.forEach(renderMessage);
-
-        fButton.onclick = function() {
-        let inp = document.querySelector('input');
-        let text = inp.value;
-
-        if (text !== "") {
-        let isFriendCheck = document.querySelector('#isFriend');
+            messages.forEach(renderMessage);
         
-        let messageData = {
+            fButton.onclick = function() {
+            let inp = document.querySelector('input');
+            let text = inp.value;
+
+            if (text !== "") {
+            let isFriendCheck = document.querySelector('#isFriend');
+        
+            let messageData = {
             text: text,
             isFriend: isFriendCheck.checked,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             id: Date.now()
-        };
+            };
 
-        renderMessage(messageData); 
-        messages.push(messageData); 
-        localStorage.setItem('ChatHistory', JSON.stringify(messages));
+            renderMessage(messageData); 
+            messages.push(messageData); 
+            localStorage.setItem('ChatHistory', JSON.stringify(messages));
         
-        inp.value = "";
-        window.scrollTo(0, document.body.scrollHeight);
-        } 
-        };
+            inp.value = "";
+            window.scrollTo(0, document.body.scrollHeight);
+            } 
+            };
 
-        inp.addEventListener('keydown', function(e) {
+            inp.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') fButton.click();
-        });
+            });
+           const downloadBtn = document.getElementById('download-btn');
+
+           downloadBtn.onclick = function() {
+           let fullText = "--- History of chat ---\n\n";
+           messages.forEach(msg => {
+           let sender = msg.isFriend ? "Friend" : "Me";
+           fullText += `[${msg.time}] ${sender}: ${msg.text}\n`;
+           });
+           const blob = new Blob([fullText], { type: 'text/plain' });
+           const link = document.createElement('a');
+           link.href = URL.createObjectURL(blob);
+           link.download = 'chat_history.txt'; 
+           link.click();
+           URL.revokeObjectURL(link.href);
+           };
     </script>
 </body>
 </html>
