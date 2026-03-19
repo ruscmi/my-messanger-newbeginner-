@@ -5,13 +5,8 @@
     <title>FDMessage</title>
     <style>
         body {
-            background: linear-gradient(rgb(54, 54, 112),rgb(24, 24, 75));
+            background: rgb(19, 19, 93);
             margin: 20px 20px 70px 20px;
-        }
-        @keyframes gradientBG {
-        0% {background-position: 0% 50%;}
-        50% {background-position: 100% 50%;}
-        100% {background-position: 0% 50%;}
         }
         #chat-window {
             display: flex;
@@ -38,6 +33,7 @@
             padding: 10px;
             border: none;
             font-family: sans-serif;
+            font-size: 20px;
         }
         button {
             background-color: rgb(0, 183, 183);
@@ -47,6 +43,7 @@
             cursor: pointer;
             transition: 0.3s;
             color: white;
+            font-size: 20px;
         }
         button:hover {
             background-color: lightcyan;
@@ -61,6 +58,7 @@
             word-wrap: break-word;
             animation: popIn 0.3s ease-out;
             transition: 0.2s;
+            font-size: 20px;
         }
         .box {
             background-color: cadetblue;
@@ -100,14 +98,30 @@
         <button id="sendBtn">Send</button>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <script>
-            let messages = JSON.parse(localStorage.getItem('ChatHistory')) || [];
+            const firebaseConfig = {
+            apiKey: "AIzaSyBb7JblJFreOwTnKXFFZNxWhDqabWqKD1g",
+            authDomain: "fdmessage-cloud.firebaseapp.com",
+            projectId: "fdmessage-cloud",
+            storageBucket: "fdmessage-cloud.firebasestorage.app",
+            messagingSenderId: "82562053397",
+            databaseURL: "https://fdmessage-cloud-default-rtdb.firebaseio.com/",
+            appId: "1:82562053397:web:85eea15ebda7780c45e51c"
+            };
+
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+
             let chat = document.querySelector('#chat-window');
             let fButton = document.querySelector('#sendBtn');
             let inp = document.querySelector('input');
             function renderMessage(msgData) {
             let newMessage = document.createElement('div');
             newMessage.classList.add(msgData.isFriend ? 'friend' : 'box');
+            const downloadBtn = document.getElementById('download-btn');
 
             let nameLabel = document.createElement('div');
             nameLabel.style.fontSize = "10px";
@@ -138,36 +152,38 @@
 
             newMessage.appendChild(timeLabel);
             }
-
-            messages.forEach(renderMessage);
         
             fButton.onclick = function() {
-            let inp = document.querySelector('input');
-            let text = inp.value;
+        let inp = document.querySelector('input');
+        let text = inp.value;
 
-            if (text !== "") {
-            let isFriendCheck = document.querySelector('#isFriend');
+        if (text !== "") {
+        let isFriendCheck = document.querySelector('#isFriend');
         
-            let messageData = {
+        let messageData = {
             text: text,
             isFriend: isFriendCheck.checked,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             id: Date.now()
-            };
+        };
 
-            renderMessage(messageData); 
-            messages.push(messageData); 
-            localStorage.setItem('ChatHistory', JSON.stringify(messages));
+        db.ref('messages').push(messageData); 
+        inp.value = "";
         
-            inp.value = "";
-            window.scrollTo(0, document.body.scrollHeight);
-            } 
-            };
+        window.scrollTo(0, document.body.scrollHeight);
+       } 
+       };
 
-            inp.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') fButton.click();
-            });
-           const downloadBtn = document.getElementById('download-btn');
+       inp.addEventListener('keydown', function(e) { 
+       if (e.key === 'Enter') fButton.click();
+       });
+
+
+        db.ref('messages').on('child_added', (snapshot) => {
+        const msgData = snapshot.val();
+        renderMessage(msgData); 
+        window.scrollTo(0, document.body.scrollHeight);
+        });
 
            downloadBtn.onclick = function() {
            let fullText = "--- History of chat ---\n\n";
