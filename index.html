@@ -196,38 +196,39 @@
                 <div>${msgData.text}</div>
                 <div style="font-size: 9px; text-align: right; opacity: 0.5; margin-top: 4px;">
                     ${msgData.time || ''}
-                 </div>
-                `;
+         </div>
+        `;
+        
 
-            newMessage.onclick = () => {
-                if (confirm("Delete a visual?")) newMessage.remove();
-            };
+        newMessage.onclick = () => {
+        if (confirm("Delete a visual?")) newMessage.remove();
+        };
 
-            chatWindow.appendChild(newMessage);
-            allMessages.push(msgData);
+        chatWindow.appendChild(newMessage);
+        allMessages.push(msgData);
             
-            window.scrollTo(0, document.body.scrollHeight);
-            }
+        window.scrollTo(0, document.body.scrollHeight);
+        }
 
-            sendBtn.onclick = function() {
-            const text = inp.value.trim();
-            if (!firebase.auth().currentUser) {
-            console.log("Re-logging in...");
-            firebase.auth().signInAnonymously();
-            }
-            sendBtn.disabled = true;
-            setTimeout(() => {
-            sendBtn.disabled = false; 
-            }, 2000);
+        sendBtn.onclick = function() {
+        const text = inp.value.trim();
+        if (!firebase.auth().currentUser) {
+        console.log("Re-logging in...");
+        firebase.auth().signInAnonymously();
+        }
+        sendBtn.disabled = true;
+        setTimeout(() => {
+        sendBtn.disabled = false; 
+        }, 2000);
 
-            if (text !== "") {
-            const isFriendCheck = document.querySelector('#isFriend');
-            const data = {
-            text: text,
-            isFriend: isFriendCheck.checked,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            id: String(Date.now())
-            };
+        if (text !== "") {
+        const isFriendCheck = document.querySelector('#isFriend');
+        const data = {
+        text: text,
+        isFriend: isFriendCheck.checked,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        id: String(Date.now())
+        };
 
     
        db.ref('messages').push(data)
@@ -303,7 +304,13 @@
         consolePanel.classList.toggle('active');
         };
         
-        let myNickname = "anon";
+        let myNickname = localStorage.getItem("Saved nick") || "anon";
+        window.addEventListener('load', () => {
+        if (localStorage.getItem("Saved nick")) {
+        const namePanel = document.querySelector('.input-name');
+        if (namePanel) namePanel.remove();
+        }
+        });
 
         document.getElementById('confirmBtn').onclick = function() {
         const inputField = document.getElementById('userNameInput');
