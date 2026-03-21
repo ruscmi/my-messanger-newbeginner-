@@ -5,12 +5,12 @@
     <title>FDMessage</title>
     <style>
         :root {
-        --main-bg-color: #ffffff;
-        --message-color: #007bff;
+        --my-msg-color: #5d5d5d;    /* Цвет для .box */
+        --friend-msg-color: #7a7a7a; /* Цвет для .friend */
+        --bg-color: #f0f0f0;         /* Фон всего чата */
         }
         body {
-            background: rgb(19, 19, 93);
-            margin: 20px 20px 70px 20px;
+        background-color: var(--bg-color);
         }
         #chat-window {
             display: flex;
@@ -65,7 +65,7 @@
             font-size: 20px;
         }
         .box {
-            background-color: cadetblue;
+            background-color: var(--my-msg-color);
             color: white;
             margin-right: auto;
             border-radius: 18px 18px 18px 2px;
@@ -77,7 +77,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
         }  
         .friend {
-            background-color: cornflowerblue;
+            background-color: var(--friend-msg-color);
             color: white;
             margin-left: auto;
             border-radius: 18px 18px 2px 18px;
@@ -99,6 +99,13 @@
         </label>
         <button id="download-btn">Download a chat</button>
         <button id="sendBtn">Send</button>
+    </div>
+    <div class="theme-settings" style="background: #ddd; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+    <label>My message:</label>
+    <input type="color" id="myColor" value="#5d5d5d">
+    
+    <label>Message friend:</label>
+    <input type="color" id="friendColor" value="#7a7a7a">
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -127,24 +134,49 @@
         const isFriendCheck = document.querySelector('#isFriend');
         const downloadBtn = document.getElementById('download-btn');
         let allMessages = [];
-        
-        document.documentElement.style.setProperty('--main-bg-color', '#333333');
+
+        const myColorPicker = document.getElementById('myColor');
+        const friendColorPicker = document.getElementById('friendColor');
+
+
+        myColorPicker.addEventListener('input', (e) => {
+        document.documentElement.style.setProperty('--my-msg-color', e.target.value);
+        localStorage.setItem('myMsgColor', e.target.value);
+        });
+        friendColorPicker.addEventListener('input', (e) => {
+        document.documentElement.style.setProperty('--friend-msg-color', e.target.value);
+        localStorage.setItem('friendMsgColor', e.target.value);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+        const savedMyColor = localStorage.getItem('myMsgColor');
+        const savedFriendColor = localStorage.getItem('friendMsgColor');
+    
+        if (savedMyColor) {
+        document.documentElement.style.setProperty('--my-msg-color', savedMyColor);
+        myColorPicker.value = savedMyColor;
+        }
+        if (savedFriendColor) {
+        document.documentElement.style.setProperty('--friend-msg-color', savedFriendColor);
+        friendColorPicker.value = savedFriendColor;
+        }
+        });
         
         function renderMessage(msgData) {
-            if (!msgData || !msgData.text) return;
+        if (!msgData || !msgData.text) return;
 
-            const newMessage = document.createElement('div');
-            newMessage.className = msgData.isFriend ? 'friend' : 'box';
+        const newMessage = document.createElement('div');
+        newMessage.className = msgData.isFriend ? 'friend' : 'box';
             
-            newMessage.innerHTML = `
-                <div style="font-size: 10px; opacity: 0.7; margin-bottom: 4px;">
-                    ${msgData.isFriend ? 'Friend' : 'Me'}
+        newMessage.innerHTML = `
+            <div style="font-size: 10px; opacity: 0.7; margin-bottom: 4px;">
+                ${msgData.isFriend ? 'Friend' : 'Me'}
                 </div>
                 <div>${msgData.text}</div>
                 <div style="font-size: 9px; text-align: right; opacity: 0.5; margin-top: 4px;">
                     ${msgData.time || ''}
-                </div>
-            `;
+                 </div>
+                `;
 
             newMessage.onclick = () => {
                 if (confirm("Delete a visual?")) newMessage.remove();
@@ -154,9 +186,9 @@
             allMessages.push(msgData);
             
             window.scrollTo(0, document.body.scrollHeight);
-        }
+            }
 
-        sendBtn.onclick = function() {
+            sendBtn.onclick = function() {
             const text = inp.value.trim();
             if (!firebase.auth().currentUser) {
             console.log("Re-logging in...");
@@ -192,7 +224,7 @@
                  if (e.key === 'Enter') {
                  e.preventDefault(); 
                  sendBtn.click(); 
-      }
+       }
        };
 
         inp.onkeydown = (e) => { 
