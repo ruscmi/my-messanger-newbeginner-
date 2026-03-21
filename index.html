@@ -102,6 +102,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <script>
+            firebase.auth().signInAnonymously()
+            .then(() => {
+            console.log("Login: TRUE!");
+            })
+            .catch((error) => {
+            console.error("Error login:", error.message);
+            });
             const firebaseConfig = {
             apiKey: "AIzaSyBb7JblJFreOwTnKXFFZNxWhDqabWqKD1g",
             authDomain: "fdmessage-cloud.firebaseapp.com",
