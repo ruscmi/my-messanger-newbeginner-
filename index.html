@@ -156,6 +156,10 @@
             console.log("Re-logging in...");
             firebase.auth().signInAnonymously();
             }
+            sendBtn.disabled = true;
+            setTimeout(() => {
+            sendBtn.disabled = false; 
+            }, 2000);
 
             if (text !== "") {
             const isFriendCheck = document.querySelector('#isFriend');
