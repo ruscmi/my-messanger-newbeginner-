@@ -4,6 +4,42 @@
     <meta charset="UTF-8">
     <title>FDMessage</title>
     <style>
+        .console-toggle {
+        background: #444;
+        color: #0f0;
+        border: 1px solid #0f0;
+        padding: 5px 10px;
+        font-family: monospace;
+        cursor: pointer;
+        font-size: 12px;
+        }
+        #user-console {
+        display: none; 
+        position: fixed;
+        bottom: 60px; 
+        left: 10px;
+        right: 10px;
+        background: rgba(34, 34, 34, 0.95);
+        padding: 15px;
+        border: 2px solid #0f0;
+        border-radius: 10px;
+        z-index: 1000;
+        box-shadow: 0 -5px 20px rgba(0,255,0,0.2);
+        }
+        #user-console.active {
+        display: block;
+        }
+
+        #localCode {
+        width: 100%;
+        height: 100px;
+        background: #000;
+        color: #0f0;
+        border: 1px solid #0f0;
+        font-family: monospace;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        }
         body {
         background-color: #f0f0f0;
         margin: 0;
@@ -88,7 +124,10 @@
 <body>
 
     <div id="chat-window"></div>
-
+    <div class="input-bar">
+    <button class="console-toggle" id="toggleConsole">JS_</button>
+    <input type="text" id="msgInput" placeholder="Send a message...">
+    </div>
     <div class="input-bar">
         <input type="text" placeholder="Send a message...">
         <label style="color: white; font-size: 14px; cursor: pointer;">
@@ -97,11 +136,16 @@
         <button id="download-btn">Download a chat</button>
         <button id="sendBtn">Send</button>
     </div>
-    <div id="user-console" style="background: #333; padding: 10px; color: #0f0; font-family: monospace;">
-    <p style="margin: 0 0 5px 0;">> Local JS Console (Only for you)</p>
-    <textarea id="localCode" placeholder="Write JS here... (e.g. document.body.style.filter = 'invert(1)')" style="width: 100%; height: 60px; background: #000; color: #0f0; border: 1px solid #444;"></textarea>
-    <button id="applyLocal">Run & Save</button>
-    <button id="resetLocal" style="background: #500;">Reset</button>
+    <div id="user-console">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span style="color: #0f0;">> TERMINAL</span>
+        <button onclick="document.getElementById('user-console').classList.remove('active')" style="background:none; border:none; color:red; cursor:pointer;">[X]</button>
+    </div>
+    <textarea id="localCode" placeholder="// Write JS here..."></textarea>
+    <div style="display: flex; gap: 10px;">
+        <button id="applyLocal" style="flex-grow: 1; background: #0f0; color: #000;">RUN CODE</button>
+        <button id="resetLocal" style="background: #500; color: white;">RESET</button>
+    </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -249,6 +293,12 @@
         runCustomCode(savedCode);
         }
         });
+        const toggleBtn = document.getElementById('toggleConsole');
+        const consolePanel = document.getElementById('user-console');
+        
+        toggleBtn.onclick = () => {
+        consolePanel.classList.toggle('active');
+        };
     </script>
 </body>
 </html>
