@@ -153,15 +153,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBb7JblJFreOwTnKXFFZNxWhDqabWqKD1g",
-            authDomain: "fdmessage-cloud.firebaseapp.com",
-            projectId: "fdmessage-cloud",
-            storageBucket: "fdmessage-cloud.firebasestorage.app",
-            messagingSenderId: "82562053397",
-            databaseURL: "https://fdmessage-cloud-default-rtdb.firebaseio.com/",
-            appId: "1:82562053397:web:85eea15ebda7780c45e51c"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyBb7JblJFreOwTnKXFFZNxWhDqabWqKD1g",
+        authDomain: "fdmessage-cloud.firebaseapp.com",
+        projectId: "fdmessage-cloud",
+        storageBucket: "fdmessage-cloud.firebasestorage.app",
+        messagingSenderId: "82562053397",
+        databaseURL: "https://fdmessage-cloud-default-rtdb.firebaseio.com/",
+        appId: "1:82562053397:web:85eea15ebda7780c45e51c"
+    };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -171,51 +171,51 @@
         const chatWindow = document.querySelector('#chat-window');
         const sendBtn = document.querySelector('#sendBtn');
         const inp = document.querySelector('#msgInput');
-        const isFriendCheck = document.querySelector('#isFriend');
         const downloadBtn = document.getElementById('download-btn');
         let allMessages = [];
 
-        const myColorPicker = document.getElementById('myColor');
-        const friendColorPicker = document.getElementById('friendColor');
-
-        const codeEditor = document.getElementById('codeEditor');
-        
-    function renderMessage(msgData) {
-    if (!msgData || !msgData.text) return;
-
-    const currentUid = firebase.auth().currentUser ? firebase.auth().currentUser.uid : null;
-    const isMe = msgData.uid === currentUid; 
-
-    const newMessage = document.createElement('div');
+        let myNickname = localStorage.getItem("Saved nick") || "anon";
+        let myColor = localStorage.getItem("UserColor") || '#' + Math.floor(Math.random()*16777215).toString(16);
     
-       newMessage.style.backgroundColor = msgData.color || 'cadetblue';
-       newMessage.style.color = 'white';
-       newMessage.style.padding = '10px';
-       newMessage.style.borderRadius = isMe ? '18px 18px 2px 18px' : '18px 18px 18px 2px';
-       newMessage.style.margin = isMe ? '0 0 0 auto' : '0 auto 0 0'; 
-       newMessage.style.maxWidth = '70%';
-       newMessage.style.width = 'fit-content';
-       newMessage.style.marginBottom = '10px';
-       newMessage.style.fontFamily = 'sans-serif';
+        if (!localStorage.getItem("UserColor")) {
+        localStorage.setItem("UserColor", myColor);
+        }
 
-       newMessage.innerHTML = `
-       <div style="font-size: 10px; opacity: 0.8; margin-bottom: 4px; font-weight: bold;">
-       ${msgData.name || 'Unknown'}
-       </div>
-       <div style="font-size: 18px;">${msgData.text}</div>
-       <div style="font-size: 9px; text-align: right; opacity: 0.6; margin-top: 4px;">
-       ${msgData.time || ''}
-       </div>
-       `;
 
-       newMessage.onclick = () => {
-       if (confirm("Delete a visual?")) newMessage.remove();
-       };
+        window.addEventListener('load', () => {
+        if (localStorage.getItem("Saved nick")) {
+        const namePanel = document.querySelector('.input-name');
+        if (namePanel) namePanel.remove();
+        }
+        });
 
-       chatWindow.appendChild(newMessage);
-       window.scrollTo(0, document.body.scrollHeight);
-       }
+        function renderMessage(msgData) {
+        if (!msgData || !msgData.text) return;
+
+        const currentUid = firebase.auth().currentUser ? firebase.auth().currentUser.uid : null;
+        const isMe = msgData.uid === currentUid; 
+
+        const newMessage = document.createElement('div');
         
+        newMessage.style.backgroundColor = msgData.color || 'cadetblue';
+        newMessage.style.color = 'white';
+        newMessage.style.padding = '10px';
+        newMessage.style.borderRadius = isMe ? '18px 18px 2px 18px' : '18px 18px 18px 2px';
+        newMessage.style.margin = isMe ? '0 0 0 auto' : '0 auto 0 0'; 
+        newMessage.style.maxWidth = '70%';
+        newMessage.style.width = 'fit-content';
+        newMessage.style.marginBottom = '10px';
+        newMessage.style.fontFamily = 'sans-serif';
+
+        newMessage.innerHTML = `
+        <div style="font-size: 10px; opacity: 0.8; margin-bottom: 4px; font-weight: bold;">
+        ${msgData.name || 'Unknown'}
+        </div>
+        <div style="font-size: 18px;">${msgData.text}</div>
+        <div style="font-size: 9px; text-align: right; opacity: 0.6; margin-top: 4px;">
+        ${msgData.time || ''}
+        </div>
+        `;
 
         newMessage.onclick = () => {
         if (confirm("Delete a visual?")) newMessage.remove();
@@ -223,125 +223,76 @@
 
         chatWindow.appendChild(newMessage);
         allMessages.push(msgData);
-            
         window.scrollTo(0, document.body.scrollHeight);
         }
 
         sendBtn.onclick = function() {
         const text = inp.value.trim();
-        if (!firebase.auth().currentUser) {
-        console.log("Re-logging in...");
-        firebase.auth().signInAnonymously();
-        }
-        sendBtn.disabled = true;
-        setTimeout(() => {
-        sendBtn.disabled = false; 
-        }, 2000);
+        if (text === "") return;
 
-        if (text !== "") {
-        const isFriendCheck = document.querySelector('#isFriend');
+        if (!firebase.auth().currentUser) {
+            firebase.auth().signInAnonymously();
+        }
+
         const data = {
         name: myNickname,
         text: text,
         color: myColor,
-        isFriend: isFriendCheck.checked,
         uid: firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anon', 
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         id: String(Date.now())
         };
 
-    
-       db.ref('messages').push(data)
-       .then(() => {
-       inp.value = "";
-       })
-       .catch((error) => {
-       console.warn("Firebase record error:", error.message);
-       });
-       }
-       };
-
- 
-       inp.onkeydown = (e) => { 
-       if (e.key === 'Enter') {
-       e.preventDefault(); 
-       sendBtn.click(); 
-       }
-       };
+        db.ref('messages').push(data)
+            .then(() => { inp.value = ""; })
+            .catch((e) => console.warn(e));
+        };
 
         inp.onkeydown = (e) => { 
-            if (e.key === 'Enter') sendBtn.click(); 
+        if (e.key === 'Enter') sendBtn.click(); 
         };
 
         db.ref('messages').on('child_added', (snapshot) => {
-        console.log("Data received:", snapshot.val());
         renderMessage(snapshot.val());
         });
 
+
+        document.getElementById('confirmBtn').onclick = function() {
+        const inputField = document.getElementById('userNameInput');
+        if (inputField.value.trim() !== "") {
+        myNickname = inputField.value;
+        localStorage.setItem("Saved nick", myNickname);
+        document.querySelector('.input-name').remove();
+        } else {
+            alert("Enter your name!");
+        }
+        };
+
         downloadBtn.onclick = () => {
-        let txt = allMessages.map(m => `[${m.time}] ${m.isFriend ? 'Friend' : 'Me'}: ${m.text}`).join('\n');
+        let txt = allMessages.map(m => `[${m.time}] ${m.name}: ${m.text}`).join('\n');
         const blob = new Blob([txt], { type: 'text/plain' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = 'chat.txt';
         a.click();
         };
+
         const localArea = document.getElementById('localCode');
-        const applyBtn = document.getElementById('applyLocal');
-        const resetBtn = document.getElementById('resetLocal');
-
-        function runCustomCode(code) {
-        try {
-        eval(code);
-        } catch (e) {
-        console.error("Custom code error:", e);
-        }
-        }
-
-        applyBtn.onclick = () => {
-        const code = localArea.value;
-        localStorage.setItem('myCustomJS', code); 
-        runCustomCode(code);
-        alert("Applied locally!");
-        };
-        
-        resetBtn.onclick = () => {
-        localStorage.removeItem('myCustomJS');
-        location.reload(); 
-        };
-        
-        window.addEventListener('load', () => {
-        const savedCode = localStorage.getItem('myCustomJS');
-        if (savedCode) {
-        localArea.value = savedCode;
-        runCustomCode(savedCode);
-        }
-        });
         const toggleBtn = document.getElementById('toggleConsole');
         const consolePanel = document.getElementById('user-console');
-        
-        toggleBtn.onclick = () => {
-        consolePanel.classList.toggle('active');
-        };
-        
-        let myNickname = localStorage.getItem("Saved nick") || "anon";
-        let myColor = localStorage.getItem("UserColor") || '#' + Math.floor(Math.random()*16777215).toString(16);
-        if (!localStorage.getItem("UserColor")) {
-        localStorage.setItem("UserColor", myColor)
-        });
+    
+        toggleBtn.onclick = () => consolePanel.classList.toggle('active');
 
-        document.getElementById('confirmBtn').onclick = function() {
-        const inputField = document.getElementById('userNameInput');
-
-        if (inputField.value.trim() !== "") {
-        myNickname=inputField.value;
-        localStorage.setItem("Saved nick",myNickname)
-        document.querySelector('.input-name').remove();
-        console.log("Welcome, " + myNickname);
-        } else {
-        alert("Enter your name, soldier!");
-        }
+        document.getElementById('applyLocal').onclick = () => {
+        localStorage.setItem('myCustomJS', localArea.value);
+        eval(localArea.value);
+        alert("Applied!");
         };
+
+        document.getElementById('resetLocal').onclick = () => {
+        localStorage.removeItem('myCustomJS');
+        location.reload();
+    };
     </script>
 </body>
 </html>
