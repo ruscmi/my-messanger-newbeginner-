@@ -152,17 +152,39 @@
 
         sendBtn.onclick = function() {
             const text = inp.value.trim();
-            if (text !== "") {
-                const data = {
-                    text: text,
-                    isFriend: isFriendCheck.checked,
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    id: Date.now()
-                };
-                db.ref('messages').push(data);
-                inp.value = "";
+            if (!firebase.auth().currentUser) {
+            console.log("Re-logging in...");
+            firebase.auth().signInAnonymously();
             }
-        };
+
+            if (text !== "") {
+            const isFriendCheck = document.querySelector('#isFriend');
+            const data = {
+            text: text,
+            isFriend: isFriendCheck.checked,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            id: Date.now() // Уникальный ID
+            };
+
+    
+            db.ref('messages').push(data)
+            .then(() => {
+                inp.value = "";
+            })
+            .catch((error) => {
+                console.error("Ошибка записи в базу:", error.message);
+                alert("База данных отклонила сообщение. Проверь правила Rules!");
+            });
+            }
+            };
+
+ 
+                 inp.onkeydown = (e) => { 
+                 if (e.key === 'Enter') {
+                 e.preventDefault(); 
+                 sendBtn.click(); 
+      }
+       };
 
         inp.onkeydown = (e) => { 
             if (e.key === 'Enter') sendBtn.click(); 
