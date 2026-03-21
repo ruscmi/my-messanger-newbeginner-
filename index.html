@@ -123,29 +123,14 @@
 </head>
 <body>
 
-    <div id="chat-window"></div>
-    <div class="input-bar">
+   <div class="input-bar">
     <button class="console-toggle" id="toggleConsole">JS_</button>
     <input type="text" id="msgInput" placeholder="Send a message...">
-    </div>
-    <div class="input-bar">
-        <input type="text" placeholder="Send a message...">
-        <label style="color: white; font-size: 14px; cursor: pointer;">
-            <input type="checkbox" id="isFriend"> друн
-        </label>
-        <button id="download-btn">Download a chat</button>
-        <button id="sendBtn">Send</button>
-    </div>
-    <div id="user-console">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-        <span style="color: #0f0;">> TERMINAL</span>
-        <button onclick="document.getElementById('user-console').classList.remove('active')" style="background:none; border:none; color:red; cursor:pointer;">[X]</button>
-    </div>
-    <textarea id="localCode" placeholder="// Write JS here..."></textarea>
-    <div style="display: flex; gap: 10px;">
-        <button id="applyLocal" style="flex-grow: 1; background: #0f0; color: #000;">RUN CODE</button>
-        <button id="resetLocal" style="background: #500; color: white;">RESET</button>
-    </div>
+    <label style="color: white; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+        <input type="checkbox" id="isFriend"> друн
+    </label>
+    <button id="download-btn" style="font-size: 14px;">Download</button>
+    <button id="sendBtn">Send</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -170,7 +155,7 @@
 
         const chatWindow = document.querySelector('#chat-window');
         const sendBtn = document.querySelector('#sendBtn');
-        const inp = document.querySelector('input');
+        const inp = document.querySelector(#msgInput);
         const isFriendCheck = document.querySelector('#isFriend');
         const downloadBtn = document.getElementById('download-btn');
         let allMessages = [];
