@@ -194,8 +194,7 @@
         };
 
         db.ref('messages').on('child_added', (snapshot) => {
-            console.log("Data received:", snapshot.val());
-            renderMessage(snapshot.val());
+        id: String(Date.now())
         });
 
         downloadBtn.onclick = () => {
