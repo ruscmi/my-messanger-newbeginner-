@@ -97,4 +97,90 @@
         <button id="sendBtn">Send</button>
     </div>
 
-    <script src
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBb7JblJFreOwTnKXFFZNxWhDqabWqKD1g",
+            authDomain: "fdmessage-cloud.firebaseapp.com",
+            projectId: "fdmessage-cloud",
+            storageBucket: "fdmessage-cloud.firebasestorage.app",
+            messagingSenderId: "82562053397",
+            databaseURL: "https://fdmessage-cloud-default-rtdb.firebaseio.com/",
+            appId: "1:82562053397:web:85eea15ebda7780c45e51c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        firebase.auth().signInAnonymously().catch(e => console.error(e));
+
+        const chatWindow = document.querySelector('#chat-window');
+        const sendBtn = document.querySelector('#sendBtn');
+        const inp = document.querySelector('input');
+        const isFriendCheck = document.querySelector('#isFriend');
+        const downloadBtn = document.getElementById('download-btn');
+        let allMessages = [];
+
+        function renderMessage(msgData) {
+            if (!msgData || !msgData.text) return;
+
+            const newMessage = document.createElement('div');
+            newMessage.className = msgData.isFriend ? 'friend' : 'box';
+            
+            newMessage.innerHTML = `
+                <div style="font-size: 10px; opacity: 0.7; margin-bottom: 4px;">
+                    ${msgData.isFriend ? 'Friend' : 'Me'}
+                </div>
+                <div>${msgData.text}</div>
+                <div style="font-size: 9px; text-align: right; opacity: 0.5; margin-top: 4px;">
+                    ${msgData.time || ''}
+                </div>
+            `;
+
+            newMessage.onclick = () => {
+                if (confirm("Удалить визуально?")) newMessage.remove();
+            };
+
+            chatWindow.appendChild(newMessage);
+            allMessages.push(msgData);
+            
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        sendBtn.onclick = function() {
+            const text = inp.value.trim();
+            if (text !== "") {
+                const data = {
+                    text: text,
+                    isFriend: isFriendCheck.checked,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    id: Date.now()
+                };
+                db.ref('messages').push(data);
+                inp.value = "";
+            }
+        };
+
+        inp.onkeydown = (e) => { 
+            if (e.key === 'Enter') sendBtn.click(); 
+        };
+
+        db.ref('messages').on('child_added', (snapshot) => {
+            console.log("Data received:", snapshot.val());
+            renderMessage(snapshot.val());
+        });
+
+        downloadBtn.onclick = () => {
+            let txt = allMessages.map(m => `[${m.time}] ${m.isFriend ? 'Friend' : 'Me'}: ${m.text}`).join('\n');
+            const blob = new Blob([txt], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'chat.txt';
+            a.click();
+        };
+    </script>
+</body>
+</html>
