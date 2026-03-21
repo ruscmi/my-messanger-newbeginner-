@@ -127,7 +127,9 @@
         const isFriendCheck = document.querySelector('#isFriend');
         const downloadBtn = document.getElementById('download-btn');
         let allMessages = [];
-
+        
+        document.documentElement.style.setProperty('--main-bg-color', '#333333');
+        
         function renderMessage(msgData) {
             if (!msgData || !msgData.text) return;
 
