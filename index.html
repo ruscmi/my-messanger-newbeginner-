@@ -172,8 +172,7 @@
                 inp.value = "";
             })
             .catch((error) => {
-                console.error("Ошибка записи в базу:", error.message);
-                alert("База данных отклонила сообщение. Проверь правила Rules!");
+                console.warn("Firebase record error:", error.message);
             });
             }
             };
