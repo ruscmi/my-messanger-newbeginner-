@@ -141,7 +141,7 @@
             `;
 
             newMessage.onclick = () => {
-                if (confirm("Удалить визуально?")) newMessage.remove();
+                if (confirm("Delete a visual?")) newMessage.remove();
             };
 
             chatWindow.appendChild(newMessage);
@@ -167,7 +167,7 @@
             text: text,
             isFriend: isFriendCheck.checked,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            id: Date.now() // Уникальный ID
+            id: String(Date.now())
             };
 
     
